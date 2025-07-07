@@ -109,11 +109,9 @@ module.exports = {
   title: "readmspa", 
   summary: "Transcripts, translations, and alt text from readmspa.org",
 
+  modVersion: "1.0",
   footnotes: true,
-
-  styles: [
-    {source: "./readmspa.scss"}
-  ],
+  styles: true,
 
   settings: {
     boolean: [{
@@ -131,9 +129,9 @@ module.exports = {
     }]
   },
 
-  computed(api) {
-    alttext = api.readJson("./data/alttext.json")
-    transcripts = api.readJson("./data/transcripts.json")
+  async asyncComputed(api) {
+    alttext = await api.readJsonAsync("./data/alttext.json")
+    transcripts = await api.readJsonAsync("./data/transcripts.json")
 
     let footnotes = []
 
@@ -147,7 +145,7 @@ module.exports = {
             // o is an object with alt text for the page
             // json interpretation logic needs to go here
             let joined_class = o['class'].join(' ') + " readmspa"
-            if (api.store.get("nominor") && joined_class == "transcript") {
+            if (api.store.get("nominor") && joined_class == "transcript readmspa") {
               // skip
               // api.logger.info("skip", mspa_num, joined_class)
             } else {
@@ -180,7 +178,10 @@ module.exports = {
     alttext_enabled = api.store.get("alttext", false)
 
     return {
-      footnotes
+      footnotes,
+      styles: [
+        {body: await api.readFileAsync("./readmspa.scss")}
+      ],
     }
   },
 
